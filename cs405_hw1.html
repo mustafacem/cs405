@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        rect {
+            fill: blue;
+        }
+
+        text {
+            fill: black;
+            font-size: 14px;
+        }
+
+        path {
+            stroke: red;
+            stroke-width: 5;
+            fill: none;
+        }
+
+        line {
+            stroke: #999;
+            stroke-width: 3;
+        }
+    </style>
+</head>
+<body>
+    <svg width="1600" height="400" id="chart"></svg>
+    <script>
+        const data = [
+            { label: '2009', value: 369703 },
+            { label: '2010', value: 366471 },
+            { label: '2011', value: 376162 },
+            { label: '2012', value: 376520 },
+            { label: '2013', value: 373041 },
+            { label: '2014', value: 391091 },
+            { label: '2015', value: 405528 },
+            { label: '2016', value: 422964 },
+            { label: '2017', value: 426857 },
+            { label: '2018', value: 426785 },
+            { label: '2019', value: 436624 },
+            { label: '2020', value: 509048 },
+            { label: '2021', value: 566485 },
+            { label: '2022', value: 504839 }
+        ];
+
+        const svg = document.getElementById('chart');
+        const width = 400;
+        const height = 400;
+        const padding = 80;
+        const max = Math.max(...data.map(d => d.value));
+        const labelWidth = 40;
+        const labelSpacing = 20;
+
+        
+        const yLineX = padding;
+        const yLine = createLine(yLineX, padding, yLineX, height - padding, '#999', 3);
+        svg.appendChild(yLine);
+        
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        //padding + 60 + index * 70
+        const lastLabelX = padding + 70 + (data.length - 1) * 70;
+        const firstLabelX = padding;
+        const xLineY = height - padding;
+        const xLine = createLine(firstLabelX, xLineY, lastLabelX + 25, xLineY, '#999', 3);
+        svg.appendChild(xLine);
+        
+        const totalLabelWidth = data.length * (labelWidth + labelSpacing) - labelSpacing;
+        
+        data.forEach((d, index) => {
+            const { label, value } = d;
+            const x = padding + 60 + index * 70;
+            const y = height - padding - (value / max) * (height - 2 * padding);
+            const rect = createRect(x, y, labelWidth, (value / max) * (height - 2 * padding), 'blue');
+            svg.appendChild(rect);
+            const textX = x;
+            const textY = height - padding + 35;
+            const text = createText(textX, textY, label);
+            svg.appendChild(text);
+            const valueTextX = x;
+            const valueTextY = y - 5;
+            const valueText = createText(valueTextX, valueTextY, value.toString());
+            svg.appendChild(valueText);
+        });
+        
+        const pathData = data.map((d, index) => {
+            const x = padding + 50 + index * 70 + 20;
+            const y = height - padding - (d.value / max) * (height - 2 * padding) - 10;
+            return `${x},${y}`;
+        });
+        const path = createPath(`M${pathData.join(' L')}`, 'red', 5);
+        svg.appendChild(path);
+        
+        
+        data.forEach((d, index) => {
+            const yValue = height - padding - (d.value / max) * (height - 2 * padding);
+            const yLineValue = d.value;
+            const yLine = createLine(yLineX - 5, yValue, yLineX + 10, yValue, '#999', 3);
+            svg.appendChild(yLine);
+            const yValueText = createText2(yLineX - 15, yValue + 5, yLineValue.toString());
+            svg.appendChild(yValueText);
+        });
+        
+      
+        const xAxisLabel = createText(width / 2, height - 30, 'Years');
+        svg.appendChild(xAxisLabel);
+        const yAxisLabel = createText(-height / 2.5, 30, 'Suicides in that year');
+        yAxisLabel.setAttribute('transform', 'rotate(-90)');
+        svg.appendChild(yAxisLabel);
+        const chartTitle = createText(width / 2, 40, 'Yearly Amount of Suicides in Turkey');
+        chartTitle.setAttribute('font-size', '77px'); //?
+        svg.appendChild(chartTitle);
+        
+    
+        
+        function createRect(x, y, width, height, fill) {
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', x);
+            rect.setAttribute('y', y);
+            rect.setAttribute('width', width);
+            rect.setAttribute('height', height);
+            rect.setAttribute('fill', fill);
+            return rect;
+        }
+
+        function createText(x, y, text) {
+            const svgText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            svgText.setAttribute('x', x );
+            svgText.setAttribute('y', y -20);
+            svgText.textContent = text;
+            return svgText;
+        }
+        
+        function createText2(x, y, text) {
+            const svgText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            svgText.setAttribute('x', x - 50 );
+            svgText.setAttribute('y', y);
+            svgText.textContent = text;
+            return svgText;
+        }
+
+
+        function createLine(x1, y1, x2, y2, strokeColor, strokeWidth) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', strokeColor);
+            line.setAttribute('stroke-width', strokeWidth);
+            return line;
+        }
+
+        function createPath(d, strokeColor, strokeWidth) {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', d);
+            path.setAttribute('stroke', strokeColor);
+            path.setAttribute('stroke-width', strokeWidth);
+            path.setAttribute('fill', 'none');
+            return path;
+        }
+    </script>
+</body>
+</html>
